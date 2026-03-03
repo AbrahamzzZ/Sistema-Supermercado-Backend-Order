@@ -1,0 +1,13 @@
+﻿using Domain.Model.Dto.Compra;
+using Utilities.Shared;
+
+namespace Infrastructure.Repository.InterfacesServices
+{
+    public interface ICompraService
+    {
+        Task<ApiResponse<string>> ObtenerNumeroDocumentoAsync();
+        Task<ApiResponse<CompraRespuesta>> ObtenerCompraAsync(string numeroDocumento);
+        Task<ApiResponse<List<DetalleComprasRepuesta>>> ObtenerDetallesCompraAsync(int idCompra);
+        Task<ApiResponse<object>> RegistrarCompraAsync(Compras compraDto);
+    }
+}

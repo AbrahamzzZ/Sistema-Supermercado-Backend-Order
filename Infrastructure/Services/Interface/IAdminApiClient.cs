@@ -1,0 +1,12 @@
+﻿using Domain.Model.Dto.Admin;
+
+namespace Infrastructure.Services.Interface
+{
+    public interface IAdminApiClient
+    {
+        Task<ProveedorAdmin?> ObtenerProveedorAsync(int id);
+        Task<SucursalAdmin?> ObtenerSucursalAsync(int id);
+        Task<UsuarioAdmin?> ObtenerUsuarioAsync(int id);
+        Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id);
+    }
+}
