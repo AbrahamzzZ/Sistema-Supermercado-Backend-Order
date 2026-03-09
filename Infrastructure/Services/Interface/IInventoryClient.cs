@@ -1,6 +1,6 @@
 ﻿using Domain.Model.Dto;
 
-namespace Infrastructure.Repository.InterfacesServices
+namespace Infrastructure.Services.Interface
 {
     public interface IInventoryClient
     {

@@ -7,6 +7,7 @@ using Utilities.Shared;
 
 namespace Order.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class LogController : ControllerBase

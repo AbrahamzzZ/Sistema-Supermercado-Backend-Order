@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Order.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VentaController : ControllerBase

@@ -18,14 +18,16 @@ namespace Infrastructure.Services
         private readonly IMasterData _masterDataValidator;
         private readonly IAdminApiClient _adminClient;
         private readonly IInventoryClient _inventoryClient;
+        private readonly IAuthApiClient _authClient;
 
-        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminApiClient adminClient)
+        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminApiClient adminClient, IAuthApiClient authClient)
         {
             _compraRepository = compraRepository;
             _validator = validator;
             _masterDataValidator = masterDataValidator;
             _inventoryClient = inventoryClient;
             _adminClient = adminClient;
+            _authClient = authClient;
         }
 
         //Para pruebas unitarias, descomenta este constructor y comenta el constructor anterior.
@@ -54,16 +56,16 @@ namespace Infrastructure.Services
 
             var sucursalTask = compraBase.Id_Sucursal > 0 ? _adminClient.ObtenerSucursalAsync(compraBase.Id_Sucursal) : Task.FromResult<SucursalAdmin?>(null);
 
-            var usuarioTask = compraBase.Id_Usuario > 0 ? _adminClient.ObtenerUsuarioAsync(compraBase.Id_Usuario) : Task.FromResult<UsuarioAdmin?>(null);
-
             var transportistaTask = compraBase.Id_Transportista > 0  ? _adminClient.ObtenerTransportistaAsync(compraBase.Id_Transportista) : Task.FromResult<TransportistaAdmin?>(null);
+
+            var usuarioTask = compraBase.Id_Usuario > 0 ? _authClient.ObtenerUsuarioAsync(compraBase.Id_Usuario) : Task.FromResult<UsuarioAdmin?>(null);
 
             await Task.WhenAll(proveedorTask, sucursalTask, usuarioTask, transportistaTask);
 
             var proveedor = await proveedorTask;
             var sucursal = await sucursalTask;
-            var usuario = await usuarioTask;
             var transportista = await transportistaTask;
+            var usuario = await usuarioTask;
 
             var response = new CompraRespuesta
             {
@@ -86,6 +88,7 @@ namespace Infrastructure.Services
                 Apellidos_Proveedor = proveedor?.Apellidos,
                 Cedula_Proveedor = proveedor?.Cedula,
 
+                Codigo_Sucursal = sucursal?.Codigo,
                 Nombre_Sucursal = sucursal?.Nombre_Sucursal,
                 Direccion_Sucursal = sucursal?.Direccion_Sucursal,
 

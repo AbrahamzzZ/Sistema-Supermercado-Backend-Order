@@ -6,6 +6,7 @@ using Infrastructure.Services;
 
 namespace Order.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CompraController : ControllerBase

@@ -5,21 +5,17 @@ using Utilities.Shared;
 
 namespace Infrastructure.Services
 {
-    public class AdminApiClient : IAdminApiClient
+    public class AuthApiClient : IAuthApiClient
     {
         private readonly HttpClient _client;
 
-        public AdminApiClient(IHttpClientFactory factory)
+        public AuthApiClient(IHttpClientFactory factory)
         {
-            _client = factory.CreateClient("AdminApi");
+            _client = factory.CreateClient("AuthApi");
         }
 
-        public async Task<ProveedorAdmin?> ObtenerProveedorAsync(int id) => await GetAsync<ProveedorAdmin>($"/admin/Proveedor/{id}");
-
-        public async Task<SucursalAdmin?> ObtenerSucursalAsync(int id) => await GetAsync<SucursalAdmin>($"/admin/Sucursal/{id}");
-
-        public async Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id) => await GetAsync<TransportistaAdmin>($"/admin/Transportista/{id}");
-
+        public async Task<UsuarioAdmin?> ObtenerUsuarioAsync(int id) => await GetAsync<UsuarioAdmin>($"/auth/Usuario/{id}");
+    
         private async Task<T?> GetAsync<T>(string url)
         {
             var response = await _client.GetAsync(url);
