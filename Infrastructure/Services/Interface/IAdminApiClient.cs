@@ -6,7 +6,6 @@ namespace Infrastructure.Services.Interface
     {
         Task<ProveedorAdmin?> ObtenerProveedorAsync(int id);
         Task<SucursalAdmin?> ObtenerSucursalAsync(int id);
-        Task<UsuarioAdmin?> ObtenerUsuarioAsync(int id);
         Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id);
     }
 }
