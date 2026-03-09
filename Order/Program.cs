@@ -1,5 +1,6 @@
 using Domain.Context;
 using Infrastructure.Extensions;
+using Infrastructure.Handler;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,15 +23,26 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<TokenDelegatingHandler>();
+
 builder.Services.AddHttpClient("AdminApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7134"); // API GATEWAY
-});
+    client.BaseAddress = new Uri("https://localhost:7134");
+})
+.AddHttpMessageHandler<TokenDelegatingHandler>();
 
 builder.Services.AddHttpClient("InventoryApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7091"); // api_inventory
-});
+    client.BaseAddress = new Uri("https://localhost:7134");
+})
+.AddHttpMessageHandler<TokenDelegatingHandler>();
+
+builder.Services.AddHttpClient("AuthApi", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7134");
+})
+.AddHttpMessageHandler<TokenDelegatingHandler>();
 
 // JWT Auth
 builder.Services.AddAuthentication(options =>
@@ -115,6 +127,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("NuevaPolitica");
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
