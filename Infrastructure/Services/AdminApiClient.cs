@@ -18,12 +18,12 @@ namespace Infrastructure.Services
 
         public async Task<SucursalAdmin?> ObtenerSucursalAsync(int id) => await GetAsync<SucursalAdmin>($"/admin/Sucursal/{id}");
 
-        public async Task<UsuarioAdmin?> ObtenerUsuarioAsync(int id) => await GetAsync<UsuarioAdmin>($"/auth/Usuario/{id}");
         public async Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id) => await GetAsync<TransportistaAdmin>($"/admin/Transportista/{id}");
 
         private async Task<T?> GetAsync<T>(string url)
         {
             var response = await _client.GetAsync(url);
+            Console.WriteLine(response.StatusCode);
 
             if (!response.IsSuccessStatusCode)
                 return default;
