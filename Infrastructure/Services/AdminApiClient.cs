@@ -23,7 +23,6 @@ namespace Infrastructure.Services
         private async Task<T?> GetAsync<T>(string url)
         {
             var response = await _client.GetAsync(url);
-            Console.WriteLine(response.StatusCode);
 
             if (!response.IsSuccessStatusCode)
                 return default;
