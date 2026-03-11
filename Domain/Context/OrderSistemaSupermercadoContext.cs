@@ -43,6 +43,10 @@ namespace Domain.Context
 
             modelBuilder.Entity<CompraSpDto>().HasNoKey().ToView(null);
 
+            modelBuilder.Entity<DetalleCompraSpDto>().HasNoKey().ToView(null);
+
+            modelBuilder.Entity<VentaSpDto>().HasNoKey().ToView(null);
+
             modelBuilder.Entity<DetalleCompras>(entity =>
             {
                 entity.HasNoKey()
@@ -126,6 +130,3 @@ namespace Domain.Context
         }
     }
 }
-
-
-
