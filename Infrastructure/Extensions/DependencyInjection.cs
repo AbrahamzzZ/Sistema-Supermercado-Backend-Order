@@ -27,7 +27,9 @@ namespace Infrastructure.Extensions
             services.AddScoped<CompraService>();
             services.AddScoped<VentaService>();
             services.AddScoped<IMasterData, MasterDataValidationService>();
-            services.AddScoped<IAdminApiClient, AdminApiClient>();
+            services.AddScoped<AdminApiClient>();
+            services.AddScoped<IAdminCompraApiClient>(sp => sp.GetRequiredService<AdminApiClient>());
+            services.AddScoped<IAdminVentaApiClient>(sp => sp.GetRequiredService<AdminApiClient>());
             services.AddScoped<IInventoryClient, InventoryApiClient>();
             services.AddScoped<IAuthApiClient, AuthApiClient>();
             return services;

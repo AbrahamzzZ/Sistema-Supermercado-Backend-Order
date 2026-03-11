@@ -6,7 +6,7 @@ namespace Infrastructure.Repository.InterfacesRepository
     {
         Task<string> ObtenerNumeroDocumentoAsync();
         Task<CompraSpDto?> ObtenerCompraAsync(string numeroDocumento);
-        Task<List<DetalleComprasRepuesta>> ObtenerDetallesCompraAsync(int idCompra);
+        Task<List<DetalleCompraSpDto>> ObtenerDetallesCompraAsync(int idCompra);
         Task<bool> RegistrarCompraAsync(Compras compraDto);
     }
 }

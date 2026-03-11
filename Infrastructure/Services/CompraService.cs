@@ -16,11 +16,11 @@ namespace Infrastructure.Services
         private readonly CompraRepository _compraRepository;
         private readonly IValidator<Compras> _validator;
         private readonly IMasterData _masterDataValidator;
-        private readonly IAdminApiClient _adminClient;
+        private readonly IAdminCompraApiClient _adminClient;
         private readonly IInventoryClient _inventoryClient;
         private readonly IAuthApiClient _authClient;
 
-        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminApiClient adminClient, IAuthApiClient authClient)
+        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminCompraApiClient adminClient, IAuthApiClient authClient)
         {
             _compraRepository = compraRepository;
             _validator = validator;
@@ -98,18 +98,48 @@ namespace Infrastructure.Services
                 Cedula_Transportista = transportista?.Cedula
             };
 
+            if (compraBase == null)
+                return new ApiResponse<CompraRespuesta> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
 
             return new ApiResponse<CompraRespuesta> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = response };
         }
 
         public async Task<ApiResponse<List<DetalleComprasRepuesta>>> ObtenerDetallesCompraAsync(int idCompra)
         {
-            var detalleCompra = await _compraRepository.ObtenerDetallesCompraAsync(idCompra);
+            var detallesSp = await _compraRepository.ObtenerDetallesCompraAsync(idCompra);
 
-            if (detalleCompra == null || detalleCompra.Count == 0)
-                return new ApiResponse<List<DetalleComprasRepuesta>> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY, Data = detalleCompra };
+            if (detallesSp == null || detallesSp.Count == 0)
+            {
+                return new ApiResponse<List<DetalleComprasRepuesta>> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
+            }
 
-            return new ApiResponse<List<DetalleComprasRepuesta>> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = detalleCompra };
+            var detalles = detallesSp.Select(d => new DetalleComprasRepuesta
+            {
+                Id_Producto = d.Id_Producto,
+                Precio_Compra = d.Precio_Compra,
+                Precio_Venta = d.Precio_Venta,
+                Cantidad = d.Cantidad,
+                SubTotal = d.SubTotal,
+                Productos = null 
+            }).ToList();
+
+            foreach (var detalle in detalles)
+            {
+                if (detalle.Id_Producto > 0)
+                {
+                    try
+                    {
+                        var producto = await _adminClient.ObtenerProductoAsync(detalle.Id_Producto);
+                        detalle.Productos = producto?.Nombre_Producto ?? "Producto no encontrado";
+                    }
+                    catch (Exception ex)
+                    {
+                        detalle.Productos = "Error al obtener producto";
+                    }
+                }
+            }
+
+            return new ApiResponse<List<DetalleComprasRepuesta>> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = detalles };
         }
 
         public async Task<ApiResponse<object>> RegistrarCompraAsync(Compras compraDto)

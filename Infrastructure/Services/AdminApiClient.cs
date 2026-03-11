@@ -5,7 +5,7 @@ using Utilities.Shared;
 
 namespace Infrastructure.Services
 {
-    public class AdminApiClient : IAdminApiClient
+    public class AdminApiClient : IAdminCompraApiClient, IAdminVentaApiClient
     {
         private readonly HttpClient _client;
 
@@ -16,9 +16,13 @@ namespace Infrastructure.Services
 
         public async Task<ProveedorAdmin?> ObtenerProveedorAsync(int id) => await GetAsync<ProveedorAdmin>($"/admin/Proveedor/{id}");
 
+        public async Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id) => await GetAsync<TransportistaAdmin>($"/admin/Transportista/{id}");
+
+        public async Task<ClienteAdmin?> ObtenerClienteAsync(int id) => await GetAsync<ClienteAdmin>($"/admin/Cliente/{id}");
+
         public async Task<SucursalAdmin?> ObtenerSucursalAsync(int id) => await GetAsync<SucursalAdmin>($"/admin/Sucursal/{id}");
 
-        public async Task<TransportistaAdmin?> ObtenerTransportistaAsync(int id) => await GetAsync<TransportistaAdmin>($"/admin/Transportista/{id}");
+        public async Task<ProductoAdmin?> ObtenerProductoAsync(int id) => await GetAsync<ProductoAdmin>($"/admin/Producto/{id}");
 
         private async Task<T?> GetAsync<T>(string url)
         {

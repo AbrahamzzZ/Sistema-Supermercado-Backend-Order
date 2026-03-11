@@ -38,19 +38,17 @@ namespace Infrastructure.Repository
 
         public async Task<CompraSpDto?> ObtenerCompraAsync(string numeroDocumento)
         {
-            var resultado = await _context
-                .Set<CompraSpDto>()
-                .FromSqlRaw("EXEC PA_OBTENER_COMPRA @Numero_Documento",
-                    new SqlParameter("@Numero_Documento", numeroDocumento))
+            var resultado = await _context.Set<CompraSpDto>()
+                .FromSqlRaw("EXEC PA_OBTENER_COMPRA @Numero_Documento", new SqlParameter("@Numero_Documento", numeroDocumento))
                 .AsNoTracking()
                 .ToListAsync();
 
             return resultado.FirstOrDefault();
         }
 
-        public async Task<List<DetalleComprasRepuesta>> ObtenerDetallesCompraAsync(int idCompra)
+        public async Task<List<DetalleCompraSpDto>> ObtenerDetallesCompraAsync(int idCompra)
         {
-            return await _context.DetalleComprasRepuestaDto
+            return await _context.Set<DetalleCompraSpDto>()
                 .FromSqlRaw("EXEC PA_OBTENER_DETALLES_COMPRA @Id_Compra", new SqlParameter("@Id_Compra", idCompra))
                 .AsNoTracking()
                 .ToListAsync();

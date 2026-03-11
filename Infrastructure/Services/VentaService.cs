@@ -1,4 +1,5 @@
 ﻿using Domain.Model.Dto;
+using Domain.Model.Dto.Admin;
 using Domain.Model.Dto.Venta;
 using FluentValidation;
 using Infrastructure.Repository;
@@ -14,14 +15,18 @@ namespace Infrastructure.Services
         private readonly VentaRepository _ventaRepository;
         private readonly IValidator<Ventas> _validator;
         private readonly IMasterData _masterDataValidator;
+        private readonly IAdminVentaApiClient _adminClient;
         private readonly IInventoryClient _inventoryClient;
+        private readonly IAuthApiClient _authClient;
 
-        public VentaService(VentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient)
+        public VentaService(VentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminVentaApiClient adminClient, IAuthApiClient authClient)
         {
             _ventaRepository = ventaRepository;
             _validator = validator;
             _masterDataValidator = masterDataValidator;
             _inventoryClient = inventoryClient;
+            _adminClient = adminClient;
+            _authClient = authClient;
         }
 
         //Para pruebas unitarias, descomenta este constructor y comenta el constructor anterior.
@@ -42,11 +47,53 @@ namespace Infrastructure.Services
 
         public async Task<ApiResponse<VentaRespuesta>> ObtenerVentaAsync(string numeroDocumento)
         {
-            var numero = await _ventaRepository.ObtenerVentaAsync(numeroDocumento);
-            if(numero == null) 
-                return new ApiResponse<VentaRespuesta> {IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
+            var ventaBase = await _ventaRepository.ObtenerVentaAsync(numeroDocumento);
+            if (ventaBase == null)
+                return new ApiResponse<VentaRespuesta> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
 
-            return new ApiResponse<VentaRespuesta> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = numero };
+            var sucursalTask = ventaBase.Id_Sucursal > 0 ? _adminClient.ObtenerSucursalAsync(ventaBase.Id_Sucursal) : Task.FromResult<SucursalAdmin?>(null);
+
+            var usuarioTask = ventaBase.Id_Usuario > 0 ? _authClient.ObtenerUsuarioAsync(ventaBase.Id_Usuario) : Task.FromResult<UsuarioAdmin?>(null);
+
+            var clienteTask = ventaBase.Id_Cliente > 0 ? _adminClient.ObtenerClienteAsync(ventaBase.Id_Cliente) : Task.FromResult<ClienteAdmin?>(null);
+
+            await Task.WhenAll(sucursalTask, usuarioTask, clienteTask);
+
+            var sucursal = await sucursalTask;
+            var cliente = await clienteTask;
+            var usuario = await usuarioTask;
+
+            var response = new VentaRespuesta
+            {
+                Id_Venta = ventaBase.Id_Venta,
+                Id_Usuario = ventaBase.Id_Usuario,
+                Id_Sucursal = ventaBase.Id_Sucursal,
+                Id_Cliente = ventaBase.Id_Cliente,
+
+                Tipo_Documento = ventaBase.Tipo_Documento,
+                Numero_Documento = ventaBase.Numero_Documento,
+                Monto_Total = ventaBase.Monto_Total,
+                Monto_Pago = ventaBase.Monto_Pago,
+                Monto_Cambio = ventaBase.Monto_Cambio,
+                Fecha_Venta = ventaBase.Fecha_Venta,
+
+                Codigo_Usuario = usuario?.Codigo,
+                Nombre_Completo = usuario?.Nombre_Completo,
+
+                Codigo_Sucursal = sucursal?.Codigo,
+                Nombre_Sucursal = sucursal?.Nombre_Sucursal,
+                Direccion_Sucursal = sucursal?.Direccion_Sucursal,
+
+                Codigo_Cliente = cliente?.Codigo,
+                Nombres_Cliente = cliente?.Nombres,
+                Apellidos_Cliente = cliente?.Apellidos,
+                Cedula_Cliente = cliente?.Cedula
+            };
+
+            if (ventaBase == null)
+                return new ApiResponse<VentaRespuesta> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
+
+            return new ApiResponse<VentaRespuesta> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = response };
         }
 
         public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)

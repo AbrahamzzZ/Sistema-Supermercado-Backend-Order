@@ -36,9 +36,9 @@ namespace Infrastructure.Repository
             return nuevoNumero;
         }
 
-        public async Task<VentaRespuesta?> ObtenerVentaAsync(string numeroDocumento)
+        public async Task<VentaSpDto?> ObtenerVentaAsync(string numeroDocumento)
         {
-            var resultado = await _context.VentaDto
+            var resultado = await _context.Set<VentaSpDto>()
                 .FromSqlRaw("EXEC PA_OBTENER_VENTA @Numero_Documento", new SqlParameter("@Numero_Documento", numeroDocumento))
                 .AsNoTracking()
                 .ToListAsync();

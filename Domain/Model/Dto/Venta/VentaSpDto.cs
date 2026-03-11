@@ -1,0 +1,17 @@
+﻿namespace Domain.Model.Dto.Venta
+{
+    public class VentaSpDto
+    {
+        public int Id_Venta { get; set; }
+        public int Id_Usuario { get; set; }
+        public int Id_Sucursal { get; set; }
+        public int Id_Cliente { get; set; }
+        public string? Tipo_Documento { get; set; }
+        public string? Numero_Documento { get; set; }
+        public decimal Monto_Total { get; set; }
+        public decimal Monto_Pago { get; set; }
+        public decimal Monto_Cambio { get; set; }
+        public decimal Descuento { get; set; }
+        public string? Fecha_Venta { get; set; }
+    }
+}
