@@ -7,7 +7,7 @@
         public string? Codigo_Usuario { get; set; }
         public string? Nombre_Completo { get; set; }
         public int Id_Sucursal { get; set; }
-        public string? Codigo { get; set; }
+        public string? Codigo_Sucursal { get; set; }
         public string? Nombre_Sucursal { get; set; }
         public string? Direccion_Sucursal { get; set; }
         public string? Tipo_Documento { get; set; }
