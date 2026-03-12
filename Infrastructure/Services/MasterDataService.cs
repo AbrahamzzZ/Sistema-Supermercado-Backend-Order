@@ -49,7 +49,7 @@ namespace Infrastructure.Services
         public async Task<bool> ClienteExisteAsync(int idCliente)
         {
             var client = _httpClientFactory.CreateClient("AdminApi");
-            var response = await client.GetAsync($"/adim/Cliente/{idCliente}");
+            var response = await client.GetAsync($"/admin/Cliente/{idCliente}");
             return response.IsSuccessStatusCode;
         }
     }

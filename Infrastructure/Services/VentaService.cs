@@ -1,5 +1,6 @@
 ﻿using Domain.Model.Dto;
 using Domain.Model.Dto.Admin;
+using Domain.Model.Dto.Compra;
 using Domain.Model.Dto.Venta;
 using FluentValidation;
 using Infrastructure.Repository;
@@ -96,7 +97,7 @@ namespace Infrastructure.Services
             return new ApiResponse<VentaRespuesta> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = response };
         }
 
-        public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)
+        /*public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)
         {
             var detalleVenta = await _ventaRepository.ObtenerDetallesVentaAsync(idVenta);
 
@@ -104,6 +105,43 @@ namespace Infrastructure.Services
                 return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY, Data = detalleVenta };
 
             return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = detalleVenta };
+        }*/
+
+        public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)
+        {
+            var detallesSp = await _ventaRepository.ObtenerDetallesVentaAsync(idVenta);
+
+            if (detallesSp == null || detallesSp.Count == 0)
+            {
+                return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY };
+            }
+
+            var detalles = detallesSp.Select(d => new DetalleVentasRepuesta
+            {
+                Id_Producto = d.Id_Producto,
+                Precio_Venta = d.Precio_Venta,
+                Cantidad = d.Cantidad,
+                SubTotal = d.SubTotal,
+                Productos = null
+            }).ToList();
+
+            foreach (var detalle in detalles)
+            {
+                if (detalle.Id_Producto > 0)
+                {
+                    try
+                    {
+                        var producto = await _adminClient.ObtenerProductoAsync(detalle.Id_Producto);
+                        detalle.Productos = producto?.Nombre_Producto ?? "Producto no encontrado";
+                    }
+                    catch (Exception ex)
+                    {
+                        detalle.Productos = "Error al obtener producto";
+                    }
+                }
+            }
+
+            return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = detalles };
         }
 
         public async Task<ApiResponse<object>> RegistrarVentaAsync(Ventas ventaDto)
