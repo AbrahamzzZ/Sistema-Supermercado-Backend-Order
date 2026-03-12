@@ -46,9 +46,9 @@ namespace Infrastructure.Repository
             return resultado.FirstOrDefault();
         }
 
-        public async Task<List<DetalleVentasRepuesta>> ObtenerDetallesVentaAsync(int idVenta)
+        public async Task<List<DetalleVentaSpDto>> ObtenerDetallesVentaAsync(int idVenta)
         {
-            return await _context.DetalleVentasRepuestaDto
+            return await _context.Set<DetalleVentaSpDto>()
                 .FromSqlRaw("EXEC PA_OBTENER_DETALLES_VENTA @Id_Venta", new SqlParameter("@Id_Venta", idVenta))
                 .AsNoTracking()
                 .ToListAsync();
