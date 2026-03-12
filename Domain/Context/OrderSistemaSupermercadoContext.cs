@@ -47,6 +47,8 @@ namespace Domain.Context
 
             modelBuilder.Entity<VentaSpDto>().HasNoKey().ToView(null);
 
+            modelBuilder.Entity<DetalleVentaSpDto>().HasNoKey().ToView(null);
+
             modelBuilder.Entity<DetalleCompras>(entity =>
             {
                 entity.HasNoKey()
