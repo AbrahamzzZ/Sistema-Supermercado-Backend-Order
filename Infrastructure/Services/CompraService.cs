@@ -2,6 +2,7 @@
 using Domain.Model.Dto.Admin;
 using Domain.Model.Dto.Compra;
 using FluentValidation;
+using Infrastructure.Kafka;
 using Infrastructure.Repository;
 using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
@@ -19,8 +20,9 @@ namespace Infrastructure.Services
         private readonly IAdminCompraApiClient _adminClient;
         private readonly IInventoryClient _inventoryClient;
         private readonly IAuthApiClient _authClient;
+        private readonly IKafkaProducer _kafkaProducer;
 
-        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminCompraApiClient adminClient, IAuthApiClient authClient)
+        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminCompraApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer)
         {
             _compraRepository = compraRepository;
             _validator = validator;
@@ -28,6 +30,7 @@ namespace Infrastructure.Services
             _inventoryClient = inventoryClient;
             _adminClient = adminClient;
             _authClient = authClient;
+            _kafkaProducer = kafkaProducer;
         }
 
         //Para pruebas unitarias, descomenta este constructor y comenta el constructor anterior.
@@ -183,7 +186,8 @@ namespace Infrastructure.Services
                         PrecioVenta = detalle.Precio_Venta
                     };
 
-                    var ok = await _inventoryClient.RegistrarMovimientoAsync(movimiento);
+                    //var ok = await _inventoryClient.RegistrarMovimientoAsync(movimiento);
+                    await _kafkaProducer.PublishAsync("movimientos-stock", movimiento);
 
                 }
                 return new ApiResponse<object> { IsSuccess = true, Message = Mensajes.MESSAGE_REGISTER };

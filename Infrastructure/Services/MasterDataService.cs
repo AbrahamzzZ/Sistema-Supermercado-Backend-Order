@@ -14,7 +14,7 @@ namespace Infrastructure.Services
         public async Task<bool> ProveedorExisteAsync(int idProveedor)
         {
             var client = _httpClientFactory.CreateClient("AdminApi");
-            var response = await client.GetAsync($"/admin/proveedor/{idProveedor}");
+            var response = await client.GetAsync($"/admin/Proveedor/{idProveedor}");
             return response.IsSuccessStatusCode;
         }
 

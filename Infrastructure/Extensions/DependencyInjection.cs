@@ -1,6 +1,7 @@
 ﻿using Domain.Model.Dto.Compra;
 using Domain.Model.Dto.Venta;
 using FluentValidation;
+using Infrastructure.Kafka;
 using Infrastructure.Repository;
 using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
@@ -32,6 +33,7 @@ namespace Infrastructure.Extensions
             services.AddScoped<IAdminVentaApiClient>(sp => sp.GetRequiredService<AdminApiClient>());
             services.AddScoped<IInventoryClient, InventoryApiClient>();
             services.AddScoped<IAuthApiClient, AuthApiClient>();
+            services.AddSingleton<IKafkaProducer, KafkaProducer>();
             return services;
         }
 
