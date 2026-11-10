@@ -24,8 +24,8 @@ namespace Domain.Context.Configuration
                 .IsUnicode(false)
                 .HasColumnName("ENDPOINT");
             builder.Property(e => e.Fecha)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnType("datetime2")
                 .HasColumnName("FECHA");
             builder.Property(e => e.Id_Usuario).HasColumnName("ID_USUARIO");
             builder.Property(e => e.Mensaje_Error)
