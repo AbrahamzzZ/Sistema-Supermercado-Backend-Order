@@ -4,43 +4,42 @@ using Infrastructure.Handler;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de clave JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var claveSecreta = jwtSettings.GetValue<string>("Key");
 
 builder.Services.AddDbContext<OrderSistemaSupermercadoContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("CadenaSQL")
+        builder.Configuration.GetConnectionString("CadenaSQL"),
+        x => x.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null)
     )
 );
 
-// Inyección de dependencias separada en métodos de extensión
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
+
+var gatewayUrl = builder.Configuration["Services:GatewayUrl"] ?? "https://localhost:7134";
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenDelegatingHandler>();
 
 builder.Services.AddHttpClient("AdminApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7134");
+    client.BaseAddress = new Uri(gatewayUrl);
 })
 .AddHttpMessageHandler<TokenDelegatingHandler>();
 
 builder.Services.AddHttpClient("InventoryApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7134");
+    client.BaseAddress = new Uri(gatewayUrl);
 })
 .AddHttpMessageHandler<TokenDelegatingHandler>();
 
 builder.Services.AddHttpClient("AuthApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7134");
+    client.BaseAddress = new Uri(gatewayUrl);
 })
 .AddHttpMessageHandler<TokenDelegatingHandler>();
 
@@ -52,7 +51,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.Authority = jwtSettings["Authority"];
+    options.RequireHttpsMetadata = jwtSettings.GetValue("RequireHttpsMetadata", true);
+    options.RefreshInterval = TimeSpan.FromSeconds(30);
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -62,7 +63,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(claveSecreta))
+        ValidAlgorithms = new[] { SecurityAlgorithms.RsaSha256 },
+        ClockSkew = TimeSpan.FromSeconds(30)
     };
 });
 
@@ -77,13 +79,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Agregar Swagger para documentación API https://aka.ms/aspnetcore/swashbuckle
+// Agregar Swagger para documentaciÃ³n API https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new() { Title = "API-Order", Version = "v1" });
 
-    // Configuración de seguridad JWT
+    // ConfiguraciÃ³n de seguridad JWT
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -118,7 +120,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
