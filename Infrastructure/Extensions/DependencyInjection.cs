@@ -5,6 +5,7 @@ using Infrastructure.Kafka;
 using Infrastructure.Repository;
 using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
+using Infrastructure.Security;
 using Infrastructure.Services;
 using Infrastructure.Services.Interface;
 using Infrastructure.Services.Validators;
@@ -24,6 +25,7 @@ namespace Infrastructure.Extensions
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<CompraService>();
             services.AddScoped<VentaService>();
