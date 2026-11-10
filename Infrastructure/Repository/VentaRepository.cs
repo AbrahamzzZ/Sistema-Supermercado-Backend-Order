@@ -83,7 +83,7 @@ namespace Infrastructure.Repository
                 new SqlParameter("@TIPO_DOCUMENTO", ventaDto.Tipo_Documento),
                 new SqlParameter("@NUMERO_DOCUMENTO", ventaDto.Numero_Documento),
                 //new SqlParameter("@NUMERO_DOCUMENTO",nuevoNumeroDocumento),
-                new SqlParameter("@MONTO_PAGO", ventaDto.Monto_Cambio),
+                new SqlParameter("@MONTO_PAGO", ventaDto.Monto_Pago),
                 new SqlParameter("@MONTO_CAMBIO", ventaDto.Monto_Cambio),
                 //new SqlParameter("@MONTO_TOTAL", ventaDto.Monto_Total),
                 new SqlParameter("@DESCUENTO", ventaDto.Descuento),

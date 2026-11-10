@@ -33,9 +33,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaCompra")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_COMPRA")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<int?>("IdProveedor")
                         .HasColumnType("int")
@@ -93,9 +93,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaRegistro")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_REGISTRO")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<int>("IdCompra")
                         .HasColumnType("int")
@@ -147,9 +147,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaRegistro")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_REGISTRO")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<int?>("IdProducto")
                         .HasColumnType("int")
@@ -172,6 +172,372 @@ namespace Domain.Migrations
                     b.HasIndex("IdVenta");
 
                     b.ToTable("DETALLE_VENTA", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Compra.CompraRespuesta", b =>
+                {
+                    b.Property<string>("Apellidos_Proveedor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Apellidos_Transportista")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Cedula_Proveedor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Cedula_Transportista")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Proveedor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Transportista")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Usuario")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Direccion_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Fecha_Compra")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Id_Compra")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Proveedor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Sucursal")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Transportista")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto_Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Nombre_Completo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombres_Proveedor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombres_Transportista")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Numero_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tipo_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Compra.CompraSpDto", b =>
+                {
+                    b.Property<string>("Fecha_Compra")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Id_Compra")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Proveedor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Sucursal")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Transportista")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto_Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Numero_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tipo_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Compra.DetalleCompraSpDto", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Compra")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Compra.DetalleCompras", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Compra")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Compra.DetalleComprasRepuesta", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Compra")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Productos")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Venta.DetalleVentaSpDto", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Venta.DetalleVentas", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Descuento")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Venta.DetalleVentasRepuesta", b =>
+                {
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Descuento")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Id_Producto")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio_Venta")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Productos")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Venta.VentaRespuesta", b =>
+                {
+                    b.Property<string>("Apellidos_Cliente")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Cedula_Cliente")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Cliente")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo_Usuario")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Descuento")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Direccion_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Fecha_Venta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Id_Cliente")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Sucursal")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Venta")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto_Cambio")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Monto_Pago")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Monto_Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Nombre_Completo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre_Sucursal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombres_Cliente")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Numero_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tipo_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.Venta.VentaSpDto", b =>
+                {
+                    b.Property<decimal>("Descuento")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Fecha_Venta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Id_Cliente")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Sucursal")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Venta")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto_Cambio")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Monto_Pago")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Monto_Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Numero_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tipo_Documento")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
                 });
 
             modelBuilder.Entity("Domain.Model.Log", b =>
@@ -202,9 +568,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("Fecha")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<int?>("Id_Usuario")
                         .HasColumnType("int")
@@ -250,9 +616,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaVenta")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_VENTA")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<int?>("IdCliente")
                         .HasColumnType("int")

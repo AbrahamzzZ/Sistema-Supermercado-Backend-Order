@@ -18,8 +18,8 @@ namespace Domain.Context.Configuration
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("DESCUENTO");
             builder.Property(e => e.FechaVenta)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnType("datetime2")
                 .HasColumnName("FECHA_VENTA");
             builder.Property(e => e.IdCliente).HasColumnName("ID_CLIENTE");
             builder.Property(e => e.IdSucursal).HasColumnName("ID_SUCURSAL");

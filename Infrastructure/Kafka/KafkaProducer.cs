@@ -1,15 +1,22 @@
 ﻿using Confluent.Kafka;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 using System.Text.Json;
 
 namespace Infrastructure.Kafka
 {
     public class KafkaProducer : IKafkaProducer, IDisposable
     {
-        private readonly IProducer<string, string> _producer;
+        public const string CorrelationHeader = "X-Correlation-Id";
 
-        public KafkaProducer(IConfiguration configuration)
+        private readonly IProducer<string, string> _producer;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public KafkaProducer(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
+
             var config = new ProducerConfig
             {
                 BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
@@ -23,12 +30,17 @@ namespace Infrastructure.Kafka
 
         public async Task PublishAsync<T>(string topic, T message, string? key = null)
         {
-            var json = JsonSerializer.Serialize(message);
-            await _producer.ProduceAsync(topic, new Message<string, string>
+            var mensaje = new Message<string, string>
             {
                 Key = key!,
-                Value = json
-            });
+                Value = JsonSerializer.Serialize(message),
+                Headers = new Headers()
+            };
+
+            if (_httpContextAccessor.HttpContext?.Items["CorrelationId"] is string correlationId)
+                mensaje.Headers.Add(CorrelationHeader, Encoding.UTF8.GetBytes(correlationId));
+
+            await _producer.ProduceAsync(topic, mensaje);
         }
 
         public void Dispose()

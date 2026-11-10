@@ -15,8 +15,8 @@ namespace Domain.Context.Configuration
 
             builder.Property(e => e.IdCompra).HasColumnName("ID_COMPRA");
             builder.Property(e => e.FechaCompra)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnType("datetime2")
                 .HasColumnName("FECHA_COMPRA");
             builder.Property(e => e.IdProveedor).HasColumnName("ID_PROVEEDOR");
             builder.Property(e => e.IdSucursal).HasColumnName("ID_SUCURSAL");

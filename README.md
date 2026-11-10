@@ -50,20 +50,62 @@ Order llama al Gateway (`Services:GatewayUrl`) **reenviando el token del usuario
 - **Admin** → valida y obtiene producto, cliente, proveedor, sucursal y transportista (`/admin/{Recurso}/{id}`)
 - **Auth** → obtiene los datos del usuario (`/auth/Usuario/{id}`)
 
+- **Inventory** → antes de registrar una venta consulta el stock de cada producto (`/inventory/ProductoStock/{id}`)
+
 ### Kafka (asíncrono) — producer
 Después de guardar una compra o venta, publica **un mensaje por cada detalle** en el tópico `movimientos-stock`.
 La clave del mensaje es el `IdProducto`, así los movimientos de un mismo producto se procesan en orden.
 
 ```json
-{ "IdProducto": 5, "Tipo": "ENTRADA", "Cantidad": 10, "Referencia": "COMPRA", "PrecioCompra": 1.20, "PrecioVenta": 1.80 }
+{ "IdProducto": 5, "Tipo": "ENTRADA", "Cantidad": 10, "Referencia": "COMPRA",
+  "PrecioCompra": 1.20, "PrecioVenta": 1.80, "IdUsuario": 1 }
 ```
+
+| Campo / header | Descripción |
+|---|---|
+| `IdUsuario` | Usuario que hizo la compra/venta (tomado del token). Inventory lo usa para auditar el movimiento. |
+| `PrecioCompra` | Solo en compras. En ventas va `null` para no sobrescribir el precio en Inventory. |
+| Header `X-Correlation-Id` | Correlation Id de la petición original, para seguir la operación hasta Inventory en Seq. |
 
 | Operación | `Tipo` | `Referencia` |
 |---|---|---|
 | Compra | `ENTRADA` | `COMPRA` |
 | Venta | `SALIDA` | `VENTA` |
 
-El consumidor es el microservicio **Inventory**.
+El consumidor es el microservicio **Inventory**. Si la publicación falla, la compra/venta **ya quedó registrada**:
+se registra un log de nivel Error y la respuesta avisa que el stock no se actualizó.
+
+## Reglas al registrar compras y ventas
+
+- **Usuario:** `Id_Usuario` se toma **siempre del token JWT**; el valor que venga en el body se ignora.
+- **Datos maestros:** se valida en Admin que existan sucursal, proveedor/cliente, transportista y productos.
+- **Stock (solo ventas):** antes de registrar se consulta a Inventory el stock de cada producto (si un producto se
+  repite en el detalle, se suman las cantidades). Si no alcanza → `400` *"Stock insuficiente para el producto X.
+  Disponible: N"*. Si Inventory no responde, la venta **no** se registra.
+- **Número de documento duplicado** → `400` con mensaje claro (antes el SP ocultaba el error).
+
+## Logs (Serilog + Seq)
+
+Los logs se envían a la consola y a **Seq** (`Seq:ServerUrl`; en Docker: http://localhost:5341 para verlos).
+Cada log incluye `Servicio=Order`, `CorrelationId` y, en las peticiones, `IdUsuario`.
+
+| Nivel | Cuándo |
+|---|---|
+| `Information` | Operación correcta (p. ej. *"Compra 00012 registrada por el usuario 1"*) |
+| `Warning` | Regla de negocio incumplida (validación, stock insuficiente, documento duplicado, maestro inexistente) |
+| `Error` | Fallo técnico: excepción no controlada, SQL Server, Kafka, Admin/Inventory sin responder |
+
+- **Correlation Id:** header `X-Correlation-Id`. Si no llega (el Gateway lo envía), se genera uno. Se devuelve en
+  la respuesta, se reenvía a Admin/Auth/Inventory y viaja en los mensajes de Kafka. En Seq, filtra por
+  `CorrelationId = '...'` para ver toda la operación en todos los servicios.
+- **Errores no controlados:** `GlobalExceptionHandler` los registra como Error y responde `500` con
+  `{ "isSuccess": false, "message": "Ocurrió un error interno. Código de seguimiento: <correlationId>" }`.
+- La tabla `LOG` y sus endpoints (`/api/Log`) se mantienen por compatibilidad.
+
+## Fechas
+
+Todas las fechas se guardan en **UTC** (`DATETIME2` con `SYSUTCDATETIME()`). Los SP que devuelven fechas
+formateadas (`dd/mm/yyyy`) las convierten a hora de Ecuador (`SA Pacific Standard Time`).
 
 ## Configuración
 
@@ -75,6 +117,8 @@ El consumidor es el microservicio **Inventory**.
 | `Jwt:Issuer` / `Jwt:Audience` | Deben coincidir con los de Auth |
 | `Services:GatewayUrl` | URL del Gateway (local: `https://localhost:7134`; Docker: `http://gateway:8080`) |
 | `Kafka:BootstrapServers` | Broker de Kafka (local con Docker: `localhost:29092`; dentro de Docker: `kafka:9092`) |
+| `Seq:ServerUrl` | Servidor de logs Seq (local: `http://localhost:5341`; dentro de Docker: `http://seq:80`) |
+| `Serilog:MinimumLevel` | Nivel mínimo de logs y overrides por namespace |
 
 ## Ejecutar solo este servicio
 
@@ -96,6 +140,32 @@ Las migraciones se aplican solas al iniciar (`Database.Migrate()` en `Program.cs
 ```bash
 dotnet ef migrations add NombreMigracion --project Domain --startup-project Order
 ```
+
+| Migración | Contenido |
+|---|---|
+| `Initial` | Tablas `COMPRA`, `DETALLE_COMPRA`, `VENTA`, `DETALLE_VENTA`, `LOG` |
+| `AuditoriaYProcedimientos` | Fechas a `DATETIME2` UTC + tipos tabla y procedimientos almacenados |
+
+### Procedimientos almacenados
+
+Los SP y tipos tabla son archivos `.sql` en `Domain/Migrations/Scripts/`, embebidos en `Domain.dll`
+(`<EmbeddedResource>` en `Domain.csproj`). La migración los ejecuta con `migrationBuilder.EjecutarScript("V001_Compra.sql")`
+(`ScriptRunner.cs` separa los lotes por líneas `GO`, igual que SSMS).
+
+| Script | Objetos |
+|---|---|
+| `V001_TiposTabla.sql` | `TI_Detalle_Compra`, `TI_Detalle_Venta` |
+| `V001_Compra.sql` | `PA_OBTENER_COMPRA`, `PA_OBTENER_DETALLES_COMPRA`, `PA_REGISTRAR_COMPRA` |
+| `V001_Venta.sql` | `PA_OBTENER_VENTA`, `PA_OBTENER_DETALLES_VENTA`, `PA_REGISTRAR_VENTA` |
+| `V001_Log.sql` | `PA_LISTA_LOG_PAGINACION`, `PA_OBTENER_LOG`, `PA_REGISTRAR_LOG` |
+
+**Para cambiar un SP en el futuro** (nunca edites un script que ya se aplicó, porque las bases existentes no lo
+volverían a ejecutar):
+
+1. Crea un archivo nuevo versionado, p. ej. `Domain/Migrations/Scripts/V002_Venta.sql`, con `CREATE OR ALTER PROCEDURE ...`.
+2. Crea una migración vacía: `dotnet ef migrations add CambioSpVenta --project Domain --startup-project Order`.
+3. En su `Up()` llama `migrationBuilder.EjecutarScript("V002_Venta.sql");` y en `Down()` vuelve a ejecutar la
+   versión anterior (`V001_Venta.sql`).
 
 ## Docker
 
