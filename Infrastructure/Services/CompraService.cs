@@ -186,8 +186,8 @@ namespace Infrastructure.Services
                         PrecioVenta = detalle.Precio_Venta
                     };
 
-                    //var ok = await _inventoryClient.RegistrarMovimientoAsync(movimiento);
-                    await _kafkaProducer.PublishAsync("movimientos-stock", movimiento);
+                    // Clave = Id del producto: los movimientos de un mismo producto se procesan en orden
+                    await _kafkaProducer.PublishAsync(KafkaTopics.MovimientosStock, movimiento, detalle.Id_Producto.ToString());
 
                 }
                 return new ApiResponse<object> { IsSuccess = true, Message = Mensajes.MESSAGE_REGISTER };

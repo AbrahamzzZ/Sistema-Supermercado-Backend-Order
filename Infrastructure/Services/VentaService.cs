@@ -1,10 +1,9 @@
 ﻿using Domain.Model.Dto;
 using Domain.Model.Dto.Admin;
-using Domain.Model.Dto.Compra;
 using Domain.Model.Dto.Venta;
 using FluentValidation;
+using Infrastructure.Kafka;
 using Infrastructure.Repository;
-using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
 using Infrastructure.Services.Interface;
 using Utilities.Shared;
@@ -19,8 +18,9 @@ namespace Infrastructure.Services
         private readonly IAdminVentaApiClient _adminClient;
         private readonly IInventoryClient _inventoryClient;
         private readonly IAuthApiClient _authClient;
+        private readonly IKafkaProducer _kafkaProducer;
 
-        public VentaService(VentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminVentaApiClient adminClient, IAuthApiClient authClient)
+        public VentaService(VentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminVentaApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer)
         {
             _ventaRepository = ventaRepository;
             _validator = validator;
@@ -28,17 +28,8 @@ namespace Infrastructure.Services
             _inventoryClient = inventoryClient;
             _adminClient = adminClient;
             _authClient = authClient;
+            _kafkaProducer = kafkaProducer;
         }
-
-        //Para pruebas unitarias, descomenta este constructor y comenta el constructor anterior.
-
-        /*readonly IVentaRepository _ventaRepository;
-        private readonly IValidator<Ventas> _validator;
-        public VentaService(IVentaRepository ventaRepository, IValidator<Ventas> validator)
-        {
-            _ventaRepository = ventaRepository;
-            _validator = validator;
-        }*/
 
         public async Task<ApiResponse<string>> ObtenerNumeroDocumentoAsync()
         {
@@ -96,16 +87,6 @@ namespace Infrastructure.Services
 
             return new ApiResponse<VentaRespuesta> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = response };
         }
-
-        /*public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)
-        {
-            var detalleVenta = await _ventaRepository.ObtenerDetallesVentaAsync(idVenta);
-
-            if(detalleVenta == null || detalleVenta.Count == 0)
-                return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = false, Message = Mensajes.MESSAGE_QUERY_EMPTY, Data = detalleVenta };
-
-            return new ApiResponse<List<DetalleVentasRepuesta>> { IsSuccess = true, Message = Mensajes.MESSAGE_QUERY, Data = detalleVenta };
-        }*/
 
         public async Task<ApiResponse<List<DetalleVentasRepuesta>>> ObtenerDetallesVentaAsync(int idVenta)
         {
@@ -181,7 +162,7 @@ namespace Infrastructure.Services
                         PrecioVenta = detalle.Precio_Venta
                     };
 
-                    var ok = await _inventoryClient.RegistrarMovimientoAsync(movimiento);
+                    await _kafkaProducer.PublishAsync(KafkaTopics.MovimientosStock, movimiento, detalle.Id_Producto.ToString());
 
                 }
                 return new ApiResponse<object> { IsSuccess = true, Message = Mensajes.MESSAGE_REGISTER };
