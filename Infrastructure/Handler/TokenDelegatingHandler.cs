@@ -26,8 +26,6 @@ namespace Infrastructure.Handler
                     AuthenticationHeaderValue.Parse(token);
             }
 
-            Console.WriteLine(request.Headers.Authorization);
-
             return await base.SendAsync(request, cancellationToken);
         }
     }
