@@ -1,12 +1,7 @@
 using Serilog.Context;
 
-namespace Order.Observabilidad
+namespace Order.Middleware
 {
-    /// <summary>
-    /// Asigna a cada petición un Correlation Id (header X-Correlation-Id): usa el que llega
-    /// (p. ej. desde el Gateway) o genera uno nuevo. Se agrega a todos los logs de la petición,
-    /// se devuelve en la respuesta y se reenvía a otros servicios y a Kafka.
-    /// </summary>
     public class CorrelationIdMiddleware
     {
         public const string HeaderName = "X-Correlation-Id";

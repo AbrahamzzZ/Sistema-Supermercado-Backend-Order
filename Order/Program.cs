@@ -4,7 +4,7 @@ using Infrastructure.Handler;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Order.Observabilidad;
+using Order.Middleware;
 using Serilog;
 using Serilog.Events;
 using System.Security.Claims;

@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Utilities.Shared;
 
-namespace Order.Observabilidad
+namespace Order.Middleware
 {
-    /// <summary>
-    /// Captura cualquier excepción no controlada: la registra como Error (con stack trace en Seq)
-    /// y devuelve al cliente una respuesta uniforme sin detalles internos.
-    /// </summary>
     public class GlobalExceptionHandler : IExceptionHandler
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
