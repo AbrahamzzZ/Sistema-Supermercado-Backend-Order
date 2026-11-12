@@ -151,6 +151,16 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
 app.UseRouting();
 
 app.UseAuthentication();
+// Agrega el usuario (del token) y el método HTTP a todos los logs de la petición: así aparecen en Seq
+// y en la pantalla "Log" de la app. Va después de UseAuthentication para que el usuario ya esté leído.
+app.Use(async (context, next) =>
+{
+    using (Serilog.Context.LogContext.PushProperty("IdUsuario", context.User.FindFirstValue(ClaimTypes.NameIdentifier)))
+    using (Serilog.Context.LogContext.PushProperty("RequestMethod", context.Request.Method))
+    {
+        await next();
+    }
+});
 
 app.UseAuthorization();
 
