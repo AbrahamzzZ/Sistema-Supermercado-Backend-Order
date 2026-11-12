@@ -540,67 +540,6 @@ namespace Domain.Migrations
                     b.ToView(null, (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Model.Log", b =>
-                {
-                    b.Property<int>("Id_Log")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ID_LOG");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_Log"));
-
-                    b.Property<string>("Codigo_Error")
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("CODIGO_ERROR");
-
-                    b.Property<string>("Detalle_Error")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("DETALLE_ERROR");
-
-                    b.Property<string>("Endpoint")
-                        .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("ENDPOINT");
-
-                    b.Property<DateTime?>("Fecha")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("FECHA")
-                        .HasDefaultValueSql("(sysutcdatetime())");
-
-                    b.Property<int?>("Id_Usuario")
-                        .HasColumnType("int")
-                        .HasColumnName("ID_USUARIO");
-
-                    b.Property<string>("Mensaje_Error")
-                        .HasMaxLength(500)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("MENSAJE_ERROR");
-
-                    b.Property<string>("Metodo")
-                        .HasMaxLength(10)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("METODO");
-
-                    b.Property<string>("Nivel")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("ERROR")
-                        .HasColumnName("NIVEL");
-
-                    b.HasKey("Id_Log");
-
-                    b.ToTable("LOG", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Model.Venta", b =>
                 {
                     b.Property<int>("IdVenta")

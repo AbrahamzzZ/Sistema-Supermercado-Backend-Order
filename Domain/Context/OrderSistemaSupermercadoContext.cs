@@ -13,8 +13,6 @@ namespace Domain.Context
 
         public virtual DbSet<DetalleVenta> DetalleVenta { get; set; }
 
-        public virtual DbSet<Log> Logs { get; set; }
-
         public virtual DbSet<Venta> Venta { get; set; }
 
         public DbSet<CompraRespuesta> CompraDto { get; set; }
