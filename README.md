@@ -40,6 +40,22 @@ Vía Gateway: `http://localhost:8000/order/...` → aquí `/api/...` · **Todos 
 | GET | `/api/Log/paginacion?pageNumber=1&pageSize=10` | Logs paginados |
 | GET | `/api/Log/{id}` | Obtiene un log |
 
+**Estadísticas** (las consume Admin para los reportes de `/admin/Negocio/...`; el frontend no las llama
+directamente). Devuelven solo **IDs y totales**: los nombres los completa Admin con sus propias tablas.
+
+| Método | Ruta | Devuelve (`data`) |
+|---|---|---|
+| GET | `/api/Estadistica/productos-comprados` | Top 5 `{ id: idProducto, total: unidades }` |
+| GET | `/api/Estadistica/productos-vendidos` | Top 5 `{ id: idProducto, total: unidades }` |
+| GET | `/api/Estadistica/top-clientes` | Top 5 `{ id: idCliente, total: ventas }` |
+| GET | `/api/Estadistica/top-proveedores` | Top 5 `{ id: idProveedor, total: compras }` |
+| GET | `/api/Estadistica/viajes-transportista` | Top 5 `{ id: idTransportista, total: compras }` |
+| GET | `/api/Estadistica/ventas-empleado` | Top 5 `{ id: idUsuario, total: ventas }` |
+| GET | `/api/Estadistica/tendencia-vendidos` | `{ idProducto, fecha, cantidad }` por producto y día (hora de Ecuador) |
+| GET | `/api/Estadistica/tendencia-comprados` | `{ idProducto, fecha, cantidad }` por producto y día (hora de Ecuador) |
+
+Sin compras o ventas responden `200` con `data: []`.
+
 Swagger: http://localhost:8004/swagger (Docker) · https://localhost:7118/swagger (local)
 
 ## Integraciones
@@ -145,6 +161,7 @@ dotnet ef migrations add NombreMigracion --project Domain --startup-project Orde
 |---|---|
 | `Initial` | Tablas `COMPRA`, `DETALLE_COMPRA`, `VENTA`, `DETALLE_VENTA`, `LOG` |
 | `AuditoriaYProcedimientos` | Fechas a `DATETIME2` UTC + tipos tabla y procedimientos almacenados |
+| `Estadisticas` | Procedimientos de estadísticas para los reportes de Admin (no cambia tablas) |
 
 ### Procedimientos almacenados
 
@@ -158,6 +175,7 @@ Los SP y tipos tabla son archivos `.sql` en `Domain/Migrations/Scripts/`, embebi
 | `V001_Compra.sql` | `PA_OBTENER_COMPRA`, `PA_OBTENER_DETALLES_COMPRA`, `PA_REGISTRAR_COMPRA` |
 | `V001_Venta.sql` | `PA_OBTENER_VENTA`, `PA_OBTENER_DETALLES_VENTA`, `PA_REGISTRAR_VENTA` |
 | `V001_Log.sql` | `PA_LISTA_LOG_PAGINACION`, `PA_OBTENER_LOG`, `PA_REGISTRAR_LOG` |
+| `V002_Estadisticas.sql` | `PA_ESTADISTICA_PRODUCTOS_COMPRADOS`, `_PRODUCTOS_VENDIDOS`, `_TOP_CLIENTES`, `_TOP_PROVEEDORES`, `_VIAJES_TRANSPORTISTA`, `_VENTAS_EMPLEADO`, `_TENDENCIA_VENDIDOS`, `_TENDENCIA_COMPRADOS` |
 
 **Para cambiar un SP en el futuro** (nunca edites un script que ya se aplicó, porque las bases existentes no lo
 volverían a ejecutar):
