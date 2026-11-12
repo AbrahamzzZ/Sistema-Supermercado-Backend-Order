@@ -1,0 +1,124 @@
+-- =============================================================
+-- V002 - Estadísticas de compras y ventas (para los reportes de Admin)
+-- Devuelven solo IDs y totales: los nombres de productos, clientes,
+-- proveedores y transportistas viven en Admin (DB_Admin) y los de
+-- empleados en Auth (DB_Auth). Admin los completa al armar el reporte.
+-- =============================================================
+
+-- Top 5 productos más comprados (unidades)
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_PRODUCTOS_COMPRADOS
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 DC.ID_PRODUCTO AS Id, SUM(ISNULL(DC.CANTIDAD, 0)) AS Total
+    FROM DETALLE_COMPRA DC
+    WHERE DC.ID_PRODUCTO IS NOT NULL
+    GROUP BY DC.ID_PRODUCTO
+    ORDER BY Total DESC, DC.ID_PRODUCTO;
+END;
+GO
+
+-- Top 5 productos más vendidos (unidades)
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_PRODUCTOS_VENDIDOS
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 DV.ID_PRODUCTO AS Id, SUM(ISNULL(DV.CANTIDAD, 0)) AS Total
+    FROM DETALLE_VENTA DV
+    WHERE DV.ID_PRODUCTO IS NOT NULL
+    GROUP BY DV.ID_PRODUCTO
+    ORDER BY Total DESC, DV.ID_PRODUCTO;
+END;
+GO
+
+-- Top 5 clientes por número de ventas
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_TOP_CLIENTES
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 V.ID_CLIENTE AS Id, COUNT(V.ID_VENTA) AS Total
+    FROM VENTA V
+    WHERE V.ID_CLIENTE IS NOT NULL
+    GROUP BY V.ID_CLIENTE
+    ORDER BY Total DESC, V.ID_CLIENTE;
+END;
+GO
+
+-- Top 5 proveedores por número de compras
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_TOP_PROVEEDORES
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 C.ID_PROVEEDOR AS Id, COUNT(C.ID_COMPRA) AS Total
+    FROM COMPRA C
+    WHERE C.ID_PROVEEDOR IS NOT NULL
+    GROUP BY C.ID_PROVEEDOR
+    ORDER BY Total DESC, C.ID_PROVEEDOR;
+END;
+GO
+
+-- Top 5 transportistas por número de viajes (compras transportadas)
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_VIAJES_TRANSPORTISTA
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 C.ID_TRANSPORTISTA AS Id, COUNT(C.ID_COMPRA) AS Total
+    FROM COMPRA C
+    WHERE C.ID_TRANSPORTISTA IS NOT NULL
+    GROUP BY C.ID_TRANSPORTISTA
+    ORDER BY Total DESC, C.ID_TRANSPORTISTA;
+END;
+GO
+
+-- Top 5 empleados por número de ventas
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_VENTAS_EMPLEADO
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 5 V.ID_USUARIO AS Id, COUNT(V.ID_VENTA) AS Total
+    FROM VENTA V
+    WHERE V.ID_USUARIO IS NOT NULL
+    GROUP BY V.ID_USUARIO
+    ORDER BY Total DESC, V.ID_USUARIO;
+END;
+GO
+
+-- Unidades vendidas por producto y día (hora de Ecuador), para el análisis con IA
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_TENDENCIA_VENDIDOS
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DV.ID_PRODUCTO AS IdProducto,
+           CONVERT(DATE, (V.FECHA_VENTA AT TIME ZONE 'UTC') AT TIME ZONE 'SA Pacific Standard Time') AS Fecha,
+           SUM(ISNULL(DV.CANTIDAD, 0)) AS Cantidad
+    FROM DETALLE_VENTA DV
+    INNER JOIN VENTA V ON DV.ID_VENTA = V.ID_VENTA
+    WHERE DV.ID_PRODUCTO IS NOT NULL AND V.FECHA_VENTA IS NOT NULL
+    GROUP BY DV.ID_PRODUCTO, CONVERT(DATE, (V.FECHA_VENTA AT TIME ZONE 'UTC') AT TIME ZONE 'SA Pacific Standard Time')
+    ORDER BY DV.ID_PRODUCTO, Fecha;
+END;
+GO
+
+-- Unidades compradas por producto y día (hora de Ecuador), para el análisis con IA
+CREATE OR ALTER PROCEDURE PA_ESTADISTICA_TENDENCIA_COMPRADOS
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DC.ID_PRODUCTO AS IdProducto,
+           CONVERT(DATE, (C.FECHA_COMPRA AT TIME ZONE 'UTC') AT TIME ZONE 'SA Pacific Standard Time') AS Fecha,
+           SUM(ISNULL(DC.CANTIDAD, 0)) AS Cantidad
+    FROM DETALLE_COMPRA DC
+    INNER JOIN COMPRA C ON DC.ID_COMPRA = C.ID_COMPRA
+    WHERE DC.ID_PRODUCTO IS NOT NULL AND C.FECHA_COMPRA IS NOT NULL
+    GROUP BY DC.ID_PRODUCTO, CONVERT(DATE, (C.FECHA_COMPRA AT TIME ZONE 'UTC') AT TIME ZONE 'SA Pacific Standard Time')
+    ORDER BY DC.ID_PRODUCTO, Fecha;
+END;
+GO
