@@ -17,7 +17,6 @@ namespace Infrastructure.Extensions
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<CompraRepository>();
             services.AddScoped<VentaRepository>();
             return services;
@@ -26,7 +25,6 @@ namespace Infrastructure.Extensions
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            services.AddScoped<ILogService, LogService>();
             services.AddScoped<CompraService>();
             services.AddScoped<VentaService>();
             services.AddScoped<EstadisticaService>();
