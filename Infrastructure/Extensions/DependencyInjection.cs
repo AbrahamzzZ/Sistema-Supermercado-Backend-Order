@@ -29,6 +29,7 @@ namespace Infrastructure.Extensions
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<CompraService>();
             services.AddScoped<VentaService>();
+            services.AddScoped<EstadisticaService>();
             services.AddScoped<IMasterData, MasterDataValidationService>();
             services.AddScoped<AdminApiClient>();
             services.AddScoped<IAdminCompraApiClient>(sp => sp.GetRequiredService<AdminApiClient>());
