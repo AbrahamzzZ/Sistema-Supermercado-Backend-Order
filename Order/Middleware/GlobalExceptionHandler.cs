@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Diagnostics;
 using Utilities.Shared;
 
@@ -16,6 +17,8 @@ namespace Order.Middleware
         {
             var correlationId = httpContext.Items[CorrelationIdMiddleware.ItemKey] as string ?? httpContext.TraceIdentifier;
 
+            using var logUsuario = Serilog.Context.LogContext.PushProperty("IdUsuario", httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            using var logMetodo = Serilog.Context.LogContext.PushProperty("RequestMethod", httpContext.Request.Method);
             _logger.LogError(exception, "Error no controlado en {Metodo} {Endpoint}",
                 httpContext.Request.Method, httpContext.Request.Path);
 
