@@ -17,16 +17,16 @@ namespace Infrastructure.Extensions
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<CompraRepository>();
-            services.AddScoped<VentaRepository>();
+            services.AddScoped<ICompraRepository, CompraRepository>();
+            services.AddScoped<IVentaRepository, VentaRepository>();
             return services;
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            services.AddScoped<CompraService>();
-            services.AddScoped<VentaService>();
+            services.AddScoped<ICompraService, CompraService>();
+            services.AddScoped<IVentaService, VentaService>();
             services.AddScoped<EstadisticaService>();
             services.AddScoped<IMasterData, MasterDataValidationService>();
             services.AddScoped<AdminApiClient>();

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Domain.Model.Dto.Compra;
-using Infrastructure.Services;
 
 namespace Order.Controllers
 {
@@ -11,21 +10,12 @@ namespace Order.Controllers
     [ApiController]
     public class CompraController : ControllerBase
     {
-        private readonly CompraService _compraService;
-
-        public CompraController(CompraService compraService)
-        {
-            _compraService = compraService;
-        }
-
-        //Para pruebas unitarias, descomenta este constructor y comenta el constructor anterior.
-
-        /*private readonly ICompraService _compraService;
+        private readonly ICompraService _compraService;
 
         public CompraController(ICompraService compraService)
         {
             _compraService = compraService;
-        }*/
+        }
 
         // GET: api/compra/numero-documento
         [HttpGet("numero-documento")]
