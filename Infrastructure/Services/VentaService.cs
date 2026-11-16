@@ -3,7 +3,7 @@ using Domain.Model.Dto.Admin;
 using Domain.Model.Dto.Venta;
 using FluentValidation;
 using Infrastructure.Kafka;
-using Infrastructure.Repository;
+using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
 using Infrastructure.Security;
 using Infrastructure.Services.Interface;
@@ -15,7 +15,7 @@ namespace Infrastructure.Services
 {
     public class VentaService : IVentaService
     {
-        private readonly VentaRepository _ventaRepository;
+        private readonly IVentaRepository _ventaRepository;
         private readonly IValidator<Ventas> _validator;
         private readonly IMasterData _masterDataValidator;
         private readonly IAdminVentaApiClient _adminClient;
@@ -25,7 +25,7 @@ namespace Infrastructure.Services
         private readonly ICurrentUserService _currentUser;
         private readonly ILogger<VentaService> _logger;
 
-        public VentaService(VentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminVentaApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer, ICurrentUserService currentUser, ILogger<VentaService> logger)
+        public VentaService(IVentaRepository ventaRepository, IValidator<Ventas> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminVentaApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer, ICurrentUserService currentUser, ILogger<VentaService> logger)
         {
             _currentUser = currentUser;
             _logger = logger;

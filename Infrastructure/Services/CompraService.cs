@@ -3,7 +3,6 @@ using Domain.Model.Dto.Admin;
 using Domain.Model.Dto.Compra;
 using FluentValidation;
 using Infrastructure.Kafka;
-using Infrastructure.Repository;
 using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
 using Infrastructure.Security;
@@ -17,7 +16,7 @@ namespace Infrastructure.Services
 {
     public class CompraService : ICompraService
     {
-        private readonly CompraRepository _compraRepository;
+        private readonly ICompraRepository _compraRepository;
         private readonly IValidator<Compras> _validator;
         private readonly IMasterData _masterDataValidator;
         private readonly IAdminCompraApiClient _adminClient;
@@ -27,7 +26,7 @@ namespace Infrastructure.Services
         private readonly ICurrentUserService _currentUser;
         private readonly ILogger<CompraService> _logger;
 
-        public CompraService(CompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminCompraApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer, ICurrentUserService currentUser, ILogger<CompraService> logger)
+        public CompraService(ICompraRepository compraRepository, IValidator<Compras> validator, IMasterData masterDataValidator, IInventoryClient inventoryClient, IAdminCompraApiClient adminClient, IAuthApiClient authClient, IKafkaProducer kafkaProducer, ICurrentUserService currentUser, ILogger<CompraService> logger)
         {
             _currentUser = currentUser;
             _logger = logger;
