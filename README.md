@@ -14,18 +14,25 @@ También entrega las estadísticas que Admin usa para los reportes.
 
 Normalmente se levanta con el `docker-compose.yml` del repo del Gateway (Swagger: http://localhost:8004/swagger).
 
-Solo este servicio:
+**Para depurar (modo híbrido):** el resto del sistema sigue en Docker y este servicio corre desde Visual Studio.
 
 ```bash
-dotnet run --project Order --launch-profile https     # https://localhost:7118/swagger
+# en el repo del Gateway
+docker compose up -d                  # todo el sistema
+docker compose stop order-api       # libera el servicio que vas a depurar
 ```
 
-Necesita SQL Server, **Kafka**, **Auth**, **Admin**, **Inventory** y el **Gateway**. La infraestructura se puede
-levantar sola desde el repo del Gateway:
+Luego F5 en Visual Studio (o `dotnet run --project Order --launch-profile https`) → https://localhost:7118/swagger.
+En el entorno Development, `appsettings.Development.json` lo conecta a lo que corre en Docker: SQL Server
+`localhost,14330` (las mismas bases), Auth `http://localhost:8002` (validación de tokens), Gateway
+`http://localhost:8000` y Kafka `localhost:29092`.
 
-```bash
-docker compose up -d sqlserver kafka kafka-init kafka-ui seq
-```
+Pruébalo desde su Swagger con un token de `POST http://localhost:8000/auth/Usuario/login` (botón *Authorize*):
+el frontend sigue pasando por el Gateway de Docker, que apunta al contenedor detenido. Al terminar:
+`docker compose up -d --build order-api`.
+
+Para usar tu propio SQL Server en vez del de Docker, define `ConnectionStrings:CadenaSQL` con `dotnet user-secrets`
+(tiene prioridad sobre `appsettings.Development.json`).
 
 ## Endpoints principales
 
